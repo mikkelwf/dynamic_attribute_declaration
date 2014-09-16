@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = DynamicAttributeDeclaration::VERSION
   spec.authors       = ["Mikkel Wied Frederiksen"]
   spec.email         = ["mikkel@wied.cc"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.summary       = %q{This gem lets you dynamically declare validations, that can function as partly applied validation, based on some kind of model instance state.}
+  # spec.description   = %q{TODO: Write a longer description. Optional.}
   spec.homepage      = ""
   spec.license       = "MIT"
 
