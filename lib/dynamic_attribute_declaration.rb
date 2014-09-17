@@ -4,33 +4,41 @@ module DynamicAttributeDeclaration
   extend ActiveSupport::Concern
 
   included do
-    class_attribute :dynamic_attrs
-    class_attribute :dynamic_attr_state_if
-
-    self.dynamic_attrs = HashWithIndifferentAccess.new
-    self.dynamic_attr_state_if = Proc.new { true } # Validates always
+    class_attribute :_dynamic_attrs
+    class_attribute :_dynamic_attr_state_if
   end
 
   def values_for attr_name
-    self.dynamic_attrs[attr_name][:values] if self.dynamic_attrs.key?(attr_name) && self.dynamic_attrs[attr_name].key?(:values)
+    _dynamic_attrs[attr_name][:values] if _dynamic_attrs.key?(attr_name) && _dynamic_attrs[attr_name].key?(:values)
   end
 
   module ClassMethods
 
+    def inherited(base) #:nodoc:
+      super
+      base._dynamic_attrs = HashWithIndifferentAccess.new
+      base._dynamic_attr_state_if = Proc.new { false }
+    end
+
+    def clear_dynamic_attrs!
+      self._dynamic_attrs = HashWithIndifferentAccess.new
+      self._dynamic_attr_state_if = Proc.new { false }
+    end
+
     def define_attr_state_if block
-      self.dynamic_attr_state_if = block
+      _dynamic_attr_state_if = block
     end
 
     def define_attrs *args
       attrs = HashWithIndifferentAccess[*args.flatten]
-      self.dynamic_attrs.merge! attrs
+      _dynamic_attrs.merge! attrs
       build_validations_from_dynamic_attrs attrs
     end
 
     def attrs_for state=nil, device=nil
       if state
         device ||= :desktop
-        self.dynamic_attrs.select do |key, val|
+        _dynamic_attrs.select do |key, val|
           if val.class == Symbol
             comparer = val
           elsif val.respond_to?(:key) && val.key?(:on)
@@ -41,16 +49,16 @@ module DynamicAttributeDeclaration
           [*comparer].map(&:to_sym).include? state.to_sym
         end
       else
-        self.dynamic_attrs
+        _dynamic_attrs
       end
     end
 
     def attrs_names_for state=nil, device=nil
-      self.attrs_for(state, device).map(&:first)
+      attrs_for(state, device).map(&:first)
     end
 
     def build_validations_from_dynamic_attrs attrs
-      throw "No validation state if defined" unless self.dynamic_attr_state_if
+      throw "No validation state if defined" unless _dynamic_attr_state_if
       attrs.each do |key, val|
         if val.class == ActiveSupport::HashWithIndifferentAccess && val.key?(:validates) && !val[:validates].empty?
           opts = val[:validates]
@@ -60,9 +68,9 @@ module DynamicAttributeDeclaration
             # If validates contains if statement, wrap that statement in state check
             if val[:validates].key?(:if)
               original_if = val[:validates][:if]
-              opts.merge! if: ->(model) { model.instance_exec(validates_on, &self.dynamic_attr_state_if) && model.instance_eval(&original_if) }
+              opts.merge! if: ->(model) { model.instance_exec(validates_on, &_dynamic_attr_state_if) && model.instance_eval(&original_if) }
             else
-              opts.merge! if: ->(model) { model.instance_exec(validates_on, &self.dynamic_attr_state_if) }
+              opts.merge! if: ->(model) { model.instance_exec(validates_on, &_dynamic_attr_state_if) }
             end
           end
 

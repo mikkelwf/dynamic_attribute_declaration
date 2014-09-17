@@ -1,21 +1,22 @@
 require 'spec_helper'
 
 describe "Dynamic Attribute Declaration" do
-  let(:cls) { Phone }
 
   before do
-    cls.clear_validators!
+    [Phone, Car].each do |model|
+      model.clear_validators!
+      model.clear_dynamic_attrs!
+      # model._dynamic_attrs = HashWithIndifferentAccess.new
+      # model._dynamic_attr_state_if = Proc.new { true }
+    end
   end
+
+  let(:cls) { Phone }
 
   describe "Basic gem tests" do
 
-    it "Should respond to dynamic_attrs accessor" do
-      expect(cls).to respond_to(:dynamic_attrs)
-      expect(cls).to respond_to(:dynamic_attrs=)
-    end
-
-    it "Accessor dynamic_attrs should be HashWithIndifferentAccess" do
-      expect(cls.dynamic_attrs.class).to eq HashWithIndifferentAccess
+    it "Accessor _dynamic_attrs should be HashWithIndifferentAccess" do
+      expect(cls._dynamic_attrs.class).to eq HashWithIndifferentAccess
     end
 
     %w(define_attrs attrs_for attrs_names_for build_validations_from_dynamic_attrs).each do |attr|
@@ -26,7 +27,6 @@ describe "Dynamic Attribute Declaration" do
   end
 
   describe "Defining attrs" do
-    let(:cls) { Phone }
 
     it "Clean Model should have no validators" do
       expect(cls.validators).to eq []
@@ -55,8 +55,8 @@ describe "Dynamic Attribute Declaration" do
         expect(validator.class).to eq "ActiveRecord::Validations::#{validator_type.capitalize}Validator".constantize
       end
 
-      it "dynamic_attrs should have configuration from define_attrs" do
-        expect(cls.dynamic_attrs).to eq definition
+      it "_dynamic_attrs should have configuration from define_attrs" do
+        expect(cls._dynamic_attrs).to eq definition
       end
 
       it "attrs_for with no state should return definition" do
@@ -92,8 +92,8 @@ describe "Dynamic Attribute Declaration" do
         expect(validator.class).to eq "ActiveRecord::Validations::#{validator_type.capitalize}Validator".constantize
       end
 
-      it "dynamic_attrs should have configuration from define_attrs" do
-        expect(cls.dynamic_attrs).to eq definition
+      it "_dynamic_attrs should have configuration from define_attrs" do
+        expect(cls._dynamic_attrs).to eq definition
       end
 
       describe "attrs_for" do
@@ -198,23 +198,17 @@ describe "Dynamic Attribute Declaration" do
   end
 
   describe "Multiple models" do
-    let(:cls_1) { Phone }
-    let(:cls_2) { Car }
 
-    before do
-      cls_1.dynamic_attrs = HashWithIndifferentAccess.new
-      cls_2.dynamic_attrs = HashWithIndifferentAccess.new
-    end
+    it "_dynamic_attrs should be different" do
+      expect(Phone._dynamic_attrs).to eq({})
+      expect(Car._dynamic_attrs).to eq({})
 
-    it "dynamic_attrs should be different" do
-      expect(cls_1.dynamic_attrs).to eq({})
-      expect(cls_2.dynamic_attrs).to eq({})
+      Phone.define_attrs [{name:{validates:{presence: true}, on: :right}}]
+      Car.define_attrs [{name:{validates:{presence: true}, on: :another}}]
+      expect(Phone._dynamic_attrs).not_to eq({})
+      expect(Car._dynamic_attrs).not_to eq({})
 
-      cls_1.define_attrs [{name:{validates:{presence: true}, on: :right}}]
-      expect(cls_1.dynamic_attrs).not_to eq({})
-      expect(cls_2.dynamic_attrs).to eq({})
-
-      expect(cls_1.dynamic_attrs).not_to eq cls_2.dynamic_attrs
+      expect(Phone._dynamic_attrs).not_to eq Car._dynamic_attrs
     end
   end
 end
