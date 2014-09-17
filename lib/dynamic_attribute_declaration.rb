@@ -17,10 +17,10 @@ module DynamicAttributeDeclaration
   module ClassMethods
 
     def inherited(base) #:nodoc:
-      super
       dup = _dynamic_attrs.dup
       base._dynamic_attrs = dup.each { |k, v| dup[k] = v.dup }
       base._dynamic_attr_state_if = Proc.new { false }
+      super
     end
 
     def clear_dynamic_attrs!
