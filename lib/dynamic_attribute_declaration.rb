@@ -4,12 +4,11 @@ module DynamicAttributeDeclaration
   extend ActiveSupport::Concern
 
   included do
-    cattr_accessor :dynamic_attr_state_if do
-      Proc.new { true } # Validates always
-    end
-    cattr_accessor :dynamic_attrs do
-      HashWithIndifferentAccess.new
-    end
+    class_attribute :dynamic_attrs
+    class_attribute :dynamic_attr_state_if
+
+    self.dynamic_attrs = HashWithIndifferentAccess.new
+    self.dynamic_attr_state_if = Proc.new { true } # Validates always
   end
 
   def values_for attr_name
@@ -24,14 +23,14 @@ module DynamicAttributeDeclaration
 
     def define_attrs *args
       attrs = HashWithIndifferentAccess[*args.flatten]
-      dynamic_attrs.merge! attrs
+      self.dynamic_attrs.merge! attrs
       build_validations_from_dynamic_attrs attrs
     end
 
     def attrs_for state=nil, device=nil
       if state
         device ||= :desktop
-        dynamic_attrs.select do |key, val|
+        self.dynamic_attrs.select do |key, val|
           if val.class == Symbol
             comparer = val
           elsif val.respond_to?(:key) && val.key?(:on)
@@ -42,7 +41,7 @@ module DynamicAttributeDeclaration
           [*comparer].map(&:to_sym).include? state.to_sym
         end
       else
-        dynamic_attrs
+        self.dynamic_attrs
       end
     end
 
@@ -51,7 +50,7 @@ module DynamicAttributeDeclaration
     end
 
     def build_validations_from_dynamic_attrs attrs
-      throw "No validation state if defined" unless dynamic_attr_state_if
+      throw "No validation state if defined" unless self.dynamic_attr_state_if
       attrs.each do |key, val|
         if val.class == ActiveSupport::HashWithIndifferentAccess && val.key?(:validates) && !val[:validates].empty?
           opts = val[:validates]

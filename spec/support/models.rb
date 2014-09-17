@@ -9,3 +9,11 @@ class Phone < ActiveRecord::Base
     state == value
   end
 end
+
+class Car < ActiveRecord::Base
+  attr_accessor :state
+
+  def validator value
+    state == value
+  end
+end

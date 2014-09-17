@@ -196,4 +196,25 @@ describe "Dynamic Attribute Declaration" do
       end
     end
   end
+
+  describe "Multiple models" do
+    let(:cls_1) { Phone }
+    let(:cls_2) { Car }
+
+    before do
+      cls_1.dynamic_attrs = HashWithIndifferentAccess.new
+      cls_2.dynamic_attrs = HashWithIndifferentAccess.new
+    end
+
+    it "dynamic_attrs should be different" do
+      expect(cls_1.dynamic_attrs).to eq({})
+      expect(cls_2.dynamic_attrs).to eq({})
+
+      cls_1.define_attrs [{name:{validates:{presence: true}, on: :right}}]
+      expect(cls_1.dynamic_attrs).not_to eq({})
+      expect(cls_2.dynamic_attrs).to eq({})
+
+      expect(cls_1.dynamic_attrs).not_to eq cls_2.dynamic_attrs
+    end
+  end
 end
