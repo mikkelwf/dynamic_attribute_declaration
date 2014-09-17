@@ -6,6 +6,8 @@ module DynamicAttributeDeclaration
   included do
     class_attribute :_dynamic_attrs
     class_attribute :_dynamic_attr_state_if
+    self._dynamic_attrs = HashWithIndifferentAccess.new
+    self._dynamic_attr_state_if = Proc.new { false }
   end
 
   def values_for attr_name
@@ -16,7 +18,8 @@ module DynamicAttributeDeclaration
 
     def inherited(base) #:nodoc:
       super
-      base._dynamic_attrs = HashWithIndifferentAccess.new
+      dup = _dynamic_attrs.dup
+      base._dynamic_attrs = dup.each { |k, v| dup[k] = v.dup }
       base._dynamic_attr_state_if = Proc.new { false }
     end
 
