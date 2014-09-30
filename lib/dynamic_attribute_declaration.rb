@@ -6,7 +6,7 @@ module DynamicAttributeDeclaration
   included do
     class_attribute :_dynamic_attrs
     class_attribute :_dynamic_attr_state_if
-    self._dynamic_attrs = HashWithIndifferentAccess.new
+    self._dynamic_attrs = {}
     self._dynamic_attr_state_if = Proc.new { false }
   end
 
@@ -19,13 +19,13 @@ module DynamicAttributeDeclaration
     def inherited(base) #:nodoc:
       dup = _dynamic_attrs.dup
       base._dynamic_attrs = dup.each { |k, v| dup[k] = v.dup }
-      base._dynamic_attr_state_if = nil #Proc.new { false }
+      base._dynamic_attr_state_if = nil
       super
     end
 
     def clear_dynamic_attrs!
-      self._dynamic_attrs = HashWithIndifferentAccess.new
-      self._dynamic_attr_state_if = nil #Proc.new { false }
+      self._dynamic_attrs = {}
+      self._dynamic_attr_state_if = nil
     end
 
     def define_attr_state_if proc
@@ -34,7 +34,7 @@ module DynamicAttributeDeclaration
     end
 
     def define_attrs *args
-      attrs = HashWithIndifferentAccess[*args.flatten]
+      attrs = Hash[*args.flatten]
       self._dynamic_attrs.merge! attrs
       build_validations_from_dynamic_attrs attrs
     end
@@ -79,7 +79,7 @@ module DynamicAttributeDeclaration
             end
           end
 
-          validates key, opts
+          validates key.to_sym, opts.deep_symbolize_keys()
         end
       end
     end

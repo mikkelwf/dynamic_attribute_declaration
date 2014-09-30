@@ -6,8 +6,8 @@ describe "Dynamic Attribute Declaration" do
 
   describe "Basic gem tests" do
 
-    it "Accessor _dynamic_attrs should be HashWithIndifferentAccess" do
-      expect(cls._dynamic_attrs.class).to eq HashWithIndifferentAccess
+    it "Accessor _dynamic_attrs should be Hash" do
+      expect(cls._dynamic_attrs.class).to eq Hash
     end
 
     %w(define_attrs attrs_for attrs_names_for build_validations_from_dynamic_attrs).each do |attr|
@@ -110,6 +110,22 @@ describe "Dynamic Attribute Declaration" do
           expect(cls.attrs_names_for(:wrong)).to eq []
         end
       end
+    end
+  end
+
+  describe "Defining define_attr_state_if" do
+    before do
+      cls.clear_dynamic_attrs!
+    end
+
+    it "Should have no _dynamic_attr_state_if as standard" do
+      expect(cls._dynamic_attr_state_if).to be_nil
+    end
+
+    it "lala" do
+      proc = Proc.new { true }
+      cls.define_attr_state_if proc
+      expect(cls._dynamic_attr_state_if).to eq proc
     end
   end
 
