@@ -64,7 +64,7 @@ module DynamicAttributeDeclaration
     def build_validations_from_dynamic_attrs attrs
       # throw "No validation state if defined" unless _rdynamic_attr_state_if
       attrs.each do |key, val|
-        if val.class == ActiveSupport::HashWithIndifferentAccess && val.key?(:validates) && !val[:validates].empty?
+        if val.key?(:validates) && !val[:validates].empty?
           opts = val[:validates]
 
           # Check if validation should only be used in specific state

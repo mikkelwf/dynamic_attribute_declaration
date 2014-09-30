@@ -25,7 +25,7 @@ describe "Dynamic Attribute Declaration" do
 
     describe "Simple definition of presence validator" do
       let(:defition_array) { [{name:{validates:{presence: true}}}] }
-      let(:definition) { HashWithIndifferentAccess[*defition_array.flatten] }
+      let(:definition) { Hash[*defition_array.flatten] }
 
       before do
         cls.define_attrs definition
@@ -61,7 +61,7 @@ describe "Dynamic Attribute Declaration" do
 
     describe "Simple definition of presence validator, with on parameter" do
       let(:defition_array) { [{name:{validates:{presence: true}, on: :right}}] }
-      let(:definition) { HashWithIndifferentAccess[*defition_array.flatten] }
+      let(:definition) { Hash[*defition_array.flatten] }
       let(:instance) { cls.new }
 
       before do
@@ -148,7 +148,7 @@ describe "Dynamic Attribute Declaration" do
 
     describe "With validator" do
       let(:defition_array) { [{name:{validates:{presence: true}, on: :right}}] }
-      let(:definition) { HashWithIndifferentAccess[*defition_array.flatten] }
+      let(:definition) { Hash[*defition_array.flatten] }
 
       before do
         cls.clear_validators!
