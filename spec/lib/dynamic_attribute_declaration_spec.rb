@@ -2,15 +2,6 @@ require 'spec_helper'
 
 describe "Dynamic Attribute Declaration" do
 
-  before do
-    [Phone, Car].each do |model|
-      model.clear_validators!
-      model.clear_dynamic_attrs!
-      # model._dynamic_attrs = HashWithIndifferentAccess.new
-      # model._dynamic_attr_state_if = Proc.new { true }
-    end
-  end
-
   let(:cls) { Phone }
 
   describe "Basic gem tests" do
@@ -128,6 +119,10 @@ describe "Dynamic Attribute Declaration" do
     describe "With no validator" do
       let(:instance) { cls.new }
 
+      before do
+        cls.clear_validators!
+      end
+
       it "Should be valid" do
         instance.valid?
         expect(instance.valid?).to eq true
@@ -138,14 +133,20 @@ describe "Dynamic Attribute Declaration" do
     describe "With validator" do
       let(:defition_array) { [{name:{validates:{presence: true}, on: :right}}] }
       let(:definition) { HashWithIndifferentAccess[*defition_array.flatten] }
-      let(:instance) { cls.new }
 
       before do
-        cls.define_attr_state_if Proc.new { |value| self.validator value }
+        cls.clear_validators!
+        cls.clear_dynamic_attrs!
+
+        cls.define_attr_state_if Proc.new { |value|
+          self.validator value
+        }
         cls.define_attrs definition
       end
 
-      describe "With validatable state" do
+      describe "With rigth validatable state" do
+        let(:instance) { cls.new }
+
         before do
           instance.state = :right
         end
@@ -163,7 +164,9 @@ describe "Dynamic Attribute Declaration" do
         end
       end
 
-      describe "With non validatable state" do
+      describe "With wrong validatable state" do
+        let(:instance) { cls.new }
+
         before do
           instance.state = :wrong
         end
@@ -182,6 +185,8 @@ describe "Dynamic Attribute Declaration" do
       end
 
       describe "With no validatable state" do
+        let(:instance) { cls.new }
+
         it "Should be valid when having no value" do
           instance.valid?
           expect(instance.valid?).to eq true
@@ -198,6 +203,13 @@ describe "Dynamic Attribute Declaration" do
   end
 
   describe "Multiple models" do
+
+    before do
+      [Phone, Car].each do |model|
+        model.clear_validators!
+        model.clear_dynamic_attrs!
+      end
+    end
 
     it "_dynamic_attrs should be different" do
       expect(Phone._dynamic_attrs).to eq({})

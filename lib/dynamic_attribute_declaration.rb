@@ -19,22 +19,23 @@ module DynamicAttributeDeclaration
     def inherited(base) #:nodoc:
       dup = _dynamic_attrs.dup
       base._dynamic_attrs = dup.each { |k, v| dup[k] = v.dup }
-      base._dynamic_attr_state_if = Proc.new { false }
+      base._dynamic_attr_state_if = nil #Proc.new { false }
       super
     end
 
     def clear_dynamic_attrs!
       self._dynamic_attrs = HashWithIndifferentAccess.new
-      self._dynamic_attr_state_if = Proc.new { false }
+      self._dynamic_attr_state_if = nil #Proc.new { false }
     end
 
-    def define_attr_state_if block
-      _dynamic_attr_state_if = block
+    def define_attr_state_if proc
+      throw "define_attr_state_if should be a proc" unless proc.class == Proc
+      self._dynamic_attr_state_if = proc
     end
 
     def define_attrs *args
       attrs = HashWithIndifferentAccess[*args.flatten]
-      _dynamic_attrs.merge! attrs
+      self._dynamic_attrs.merge! attrs
       build_validations_from_dynamic_attrs attrs
     end
 
@@ -61,12 +62,13 @@ module DynamicAttributeDeclaration
     end
 
     def build_validations_from_dynamic_attrs attrs
-      throw "No validation state if defined" unless _dynamic_attr_state_if
+      # throw "No validation state if defined" unless _rdynamic_attr_state_if
       attrs.each do |key, val|
         if val.class == ActiveSupport::HashWithIndifferentAccess && val.key?(:validates) && !val[:validates].empty?
           opts = val[:validates]
+
           # Check if validation should only be used in specific state
-          if val.key?(:on)
+          if val.key?(:on) && _dynamic_attr_state_if && _dynamic_attr_state_if.class == Proc
             validates_on = val[:on]
             # If validates contains if statement, wrap that statement in state check
             if val[:validates].key?(:if)
