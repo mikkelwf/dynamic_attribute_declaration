@@ -91,11 +91,21 @@ describe "Dynamic Attribute Declaration" do
         it "with no state should return definition" do
           expect(cls.attrs_for).to eq definition
         end
-        it "with right state should return definition" do
-          expect(cls.attrs_for(:right)).to eq definition
+        describe "with right state" do
+          it "with symbol should return definition" do
+            expect(cls.attrs_for(:right)).to eq definition
+          end
+          it "with string should return definition" do
+            expect(cls.attrs_for("right")).to eq definition
+          end
         end
-        it "with wrong state should return empty object" do
-          expect(cls.attrs_for(:wrong)).to eq({})
+        describe "with wrong state" do
+          it "with symbol should return empty object" do
+            expect(cls.attrs_for(:wrong)).to eq({})
+          end
+          it "with string should return empty object" do
+            expect(cls.attrs_for("wrong")).to eq({})
+          end
         end
       end
 
@@ -103,12 +113,26 @@ describe "Dynamic Attribute Declaration" do
         it "with no state should return definition keys" do
           expect(cls.attrs_names_for).to eq definition.keys
         end
-        it "with right state should return definition keys" do
-          expect(cls.attrs_names_for(:right)).to eq definition.keys
+        describe "with right state" do
+          it "with symbol should return definition keys" do
+            expect(cls.attrs_names_for(:right)).to eq definition.keys
+          end
+          it "with string should return definition keys" do
+            expect(cls.attrs_names_for("right")).to eq definition.keys
+          end
         end
-        it "with wrong state should return empty array" do
-          expect(cls.attrs_names_for(:wrong)).to eq []
+        describe "with wrong state" do
+          it "with symbol should return empty array" do
+            expect(cls.attrs_names_for(:wrong)).to eq []
+          end
+          it "with string should return empty array" do
+            expect(cls.attrs_names_for("wrong")).to eq []
+          end
         end
+      end
+
+      describe "values_for" do
+        pending "TEST VALUES FOR"
       end
     end
   end

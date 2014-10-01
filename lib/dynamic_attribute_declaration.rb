@@ -47,7 +47,7 @@ module DynamicAttributeDeclaration
             comparer = val
           elsif val.respond_to?(:key) && val.key?(:on)
             comparer = val[:on] if val[:on].class == Symbol
-            comparer = val[:on][device] if val[:on].respond_to?(:key) && val[:on].key?(device)
+            comparer = val[:on][device.to_sym] if val[:on].respond_to?(:key) && val[:on].key?(device.to_sym)
           end
 
           [*comparer].map(&:to_sym).include? state.to_sym
