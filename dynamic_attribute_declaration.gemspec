@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Mikkel Wied Frederiksen"]
   spec.email         = ["mikkel@wied.cc"]
   spec.summary       = %q{This gem lets you dynamically declare validations, that can function as partly applied validation, based on some kind of model instance state.}
-  # spec.description   = %q{TODO: Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.description   = %q{DESCRIPTION ON THE WAY! :)}
+  spec.homepage      = "https://github.com/mikkelwf/dynamic_attribute_declaration"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
@@ -19,11 +19,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", "~> 1.6"
-  spec.add_development_dependency "rake"
-  spec.add_development_dependency "rspec"
-  spec.add_development_dependency "rspec-its"
-  spec.add_development_dependency "sqlite3"
-  spec.add_development_dependency('database_cleaner')
+  spec.add_development_dependency "rake", "~> 10"
+  spec.add_development_dependency "rspec", "~> 3"
+  spec.add_development_dependency "rspec-its", "~> 1"
+  spec.add_development_dependency "sqlite3", "~> 1.3"
+  spec.add_development_dependency "database_cleaner", "~> 1.3"
 
   spec.add_dependency "activerecord", "~> 4.0"
   spec.add_dependency "activesupport", "~> 4.0"
