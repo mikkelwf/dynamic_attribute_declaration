@@ -65,21 +65,21 @@ module DynamicAttributeDeclaration
       # throw "No validation state if defined" unless _rdynamic_attr_state_if
       attrs.each do |key, val|
         if val.key?(:validates) && !val[:validates].empty?
-          opts = val[:validates]
+          opts = val[:validates].deep_symbolize_keys
 
           # Check if validation should only be used in specific state
           if val.key?(:on) && _dynamic_attr_state_if && _dynamic_attr_state_if.class == Proc
             validates_on = val[:on]
             # If validates contains if statement, wrap that statement in state check
-            if val[:validates].key?(:if)
-              original_if = val[:validates][:if]
+            if opts.key?(:if)
+              original_if = opts.delete(:if)
               opts.merge! if: ->(model) { model.instance_exec(validates_on, &_dynamic_attr_state_if) && model.instance_eval(&original_if) }
             else
               opts.merge! if: ->(model) { model.instance_exec(validates_on, &_dynamic_attr_state_if) }
             end
           end
 
-          validates key.to_sym, opts.deep_symbolize_keys()
+          validates key.to_sym, opts
         end
       end
     end
