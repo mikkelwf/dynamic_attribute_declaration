@@ -11,7 +11,15 @@ module DynamicAttributeDeclaration
   end
 
   def values_for attr_name
-    _dynamic_attrs[attr_name][:values] if _dynamic_attrs.key?(attr_name) && _dynamic_attrs[attr_name].key?(:values)
+    if _dynamic_attrs.key?(attr_name)
+      rtn = nil
+      _dynamic_attrs[attr_name].each do |attr|
+        if attr.key?(:values)
+          rtn = attr[:values]
+        end
+      end
+    end
+    rtn
   end
 
   module ClassMethods

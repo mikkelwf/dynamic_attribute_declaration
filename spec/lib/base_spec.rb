@@ -262,16 +262,33 @@ describe "BASE TESTS" do
       end
 
       describe "values_for" do
-        pending "TEST VALUES FOR"
+        before do
+          cls.clear_dynamic_attrs!
+          cls.define_attrs [
+            {
+              name:
+              {
+                values: {
+                  "Lumia 920" => :lumia_920,
+                  "Lumia 930" => :lumia_930
+                }
+              }
+            }
+          ]
+        end
+
+        it "Should return values for selected attribute" do
+          instance = cls.new
+          values = instance.values_for(:name)
+          expect(values).not_to eq nil
+        end
+
+        pending "Handle case where values is defined multiple times"
       end
     end
   end
 
   describe "Defining define_attr_state_if" do
-    before do
-      cls.clear_dynamic_attrs!
-    end
-
     it "Should have no _dynamic_attr_state_if as standard" do
       expect(cls._dynamic_attr_state_if).to be_nil
     end
